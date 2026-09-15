@@ -46,6 +46,8 @@ const walletMap={solana:{label:'SOLANA USDC',address:'9waU4ReAW6YCxbyCae4d2WsyQs
 const networkSelect=document.querySelector('#payment-network');
 const claimForm=document.querySelector('#claim-form');
 const transactionInput=document.querySelector('[name="transaction"]');
+const xProfileInput=document.querySelector('[name="x_profile"]');
+const claimSuccess=document.querySelector('#claim-success');
 function setWallet(){const wallet=walletMap[networkSelect.value];document.querySelector('#wallet-label').textContent=`ONCHAIN CLAIM · ${wallet.label}`;document.querySelector('#wallet-address').textContent=wallet.address}
 function validTransactionLink(){
   try{
@@ -65,11 +67,40 @@ function validateTransactionLink(){
   transactionInput.setCustomValidity(isValid?'':`Paste a valid ${explorer} transaction link for the selected network.`);
   return isValid;
 }
+function validXProfileLink(){
+  try{
+    const url=new URL(xProfileInput.value.trim());
+    if(url.protocol!=='https:'||!['x.com','www.x.com'].includes(url.hostname.toLowerCase()))return false;
+    const match=url.pathname.match(/^\/([A-Za-z0-9_]{1,15})\/?$/);
+    if(!match)return false;
+    const reserved=new Set(['home','explore','notifications','messages','i','settings','search','compose','login','signup','tos','privacy']);
+    return !reserved.has(match[1].toLowerCase());
+  }catch{return false}
+}
+function validateXProfileLink(){
+  const isValid=validXProfileLink();
+  xProfileInput.setCustomValidity(isValid?'':'Paste a valid X profile link, for example https://x.com/yourbrand.');
+  return isValid;
+}
 networkSelect.addEventListener('change',()=>{setWallet();if(transactionInput.value)validateTransactionLink()});
 transactionInput.addEventListener('input',()=>transactionInput.setCustomValidity(''));
+xProfileInput.addEventListener('input',()=>xProfileInput.setCustomValidity(''));
 document.querySelector('#copy-wallet').onclick=async()=>{const wallet=walletMap[networkSelect.value];try{await navigator.clipboard.writeText(wallet.address);showToast(`${wallet.label} wallet copied`)}catch{showToast('Copy the wallet address manually')}};
-claimForm.addEventListener('submit',e=>{if(!biddingIsOpen()){e.preventDefault();e.stopImmediatePropagation();modal.close();showToast('Bidding is closed');return}if(!validateTransactionLink()){e.preventDefault();e.stopImmediatePropagation();transactionInput.reportValidity()}},true);
+claimForm.addEventListener('submit',e=>{if(!biddingIsOpen()){e.preventDefault();e.stopImmediatePropagation();modal.close();showToast('Bidding is closed');return}if(!validateXProfileLink()){e.preventDefault();e.stopImmediatePropagation();xProfileInput.reportValidity();return}if(!validateTransactionLink()){e.preventDefault();e.stopImmediatePropagation();transactionInput.reportValidity()}},true);
 function showToast(message){toast.textContent=message;toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),3000)}
+let submissionResetStarted=false;
+const successObserver=new MutationObserver(()=>{
+  const submissionSucceeded=getComputedStyle(claimSuccess).display!=='none'&&!claimSuccess.hidden;
+  if(!submissionSucceeded||submissionResetStarted)return;
+  submissionResetStarted=true;
+  sessionStorage.setItem('claim-submitted','true');
+  window.location.reload();
+});
+successObserver.observe(claimSuccess,{attributes:true,childList:true,subtree:true});
+if(sessionStorage.getItem('claim-submitted')==='true'){
+  sessionStorage.removeItem('claim-submitted');
+  setTimeout(()=>showToast('Claim received — remaining spots are ready'),250);
+}
 document.querySelectorAll('details').forEach(d=>d.addEventListener('toggle',()=>{if(d.open)document.querySelectorAll('details').forEach(o=>{if(o!==d)o.open=false})}));
 document.querySelectorAll('.view-tab').forEach(tab=>tab.addEventListener('click',()=>{document.querySelectorAll('.view-tab').forEach(t=>t.classList.toggle('active',t===tab));document.querySelectorAll('.fit-view').forEach(v=>v.classList.toggle('active',v.dataset.panel===tab.dataset.view))}));
 updateBiddingState();
