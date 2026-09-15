@@ -130,23 +130,23 @@
   <dialog id="claim-modal">
     <button class="modal-close" aria-label="Close dialog">×</button>
     <p class="eyebrow">Claim placement</p><h2 id="modal-title">T1 — $[PRICE]</h2>
-    <form id="claim-form" action="https://usebasin.com/f/d99450cefe47" method="POST" enctype="multipart/form-data" data-basin-form data-basin-success-action="render" data-basin-success-id="claim-success" data-basin-error-id="claim-error" data-basin-spam-protection="none">
+    <form id="claim-form" action="https://usebasin.com/f/d99450cefe47" method="POST" enctype="multipart/form-data" accept-charset="UTF-8" data-basin-form data-basin-success-action="render" data-basin-success-id="claim-success" data-basin-error-id="claim-error" data-basin-spam-protection="none">
       <input type="hidden" id="claim-spot-id" name="spot_id" />
       <input type="hidden" id="claim-spot-name" name="spot_name" />
       <input type="hidden" id="claim-spot-price" name="spot_price" />
       <label>Brand name<input required name="brand" placeholder="Your project or company" /></label>
       <label>Work email<input required type="email" name="email" placeholder="you@brand.com" /></label>
       <label>QR destination<input required type="url" name="destination" placeholder="Website, X account, Telegram or campaign link" /></label>
-      <label>Logo file <small>Optional — send it later if needed</small><input type="file" name="logo" accept=".png,.svg,image/png,image/svg+xml" /></label>
+      <label>Logo file <small>Required — transparent SVG or PNG preferred</small><input required type="file" name="logo" accept=".png,.svg,image/png,image/svg+xml" /></label>
       <label>QR code file <small>Optional — I can generate one from your destination link</small><input type="file" name="qr_code" accept=".png,.svg,.jpg,.jpeg,image/png,image/svg+xml,image/jpeg" /></label>
-      <label>Transaction hash<input required name="transaction" placeholder="Paste USDC transaction hash" /></label>
+      <label>Transaction explorer link<input required type="url" name="transaction" placeholder="Paste the Solscan, Etherscan or Basescan transaction link" /></label>
       <label>Payment network<select id="payment-network" name="network"><option value="solana">Solana USDC</option><option value="ethereum">Ethereum ERC-20 USDC</option><option value="base">Base USDC</option></select></label>
       <div class="wallet"><span id="wallet-label">ONCHAIN CLAIM · SOLANA USDC</span><code id="wallet-address">9waU4ReAW6YCxbyCae4d2WsyQsTYhSkiA5s5pdFWG8ip</code><button type="button" id="copy-wallet">Copy selected wallet</button><small>Send only native USDC using the network selected above. A wrong-network transfer may be unrecoverable.</small></div>
       <button class="pill full" type="submit">Submit claim for verification</button>
-      <div id="claim-success" class="form-note" style="display:none">Claim received. Your placement remains pending until the USDC transaction is verified.</div>
-      <div id="claim-error" class="form-note" style="display:none">Your claim could not be submitted. Check the fields and try again.</div>
       <p class="form-note">Submitting does not reserve a spot. A placement is confirmed only after onchain payment verification.</p>
     </form>
+    <div id="claim-success" class="form-note" style="display:none">Claim received. Your placement remains pending until the USDC transaction is verified. You can close this window now.</div>
+    <div id="claim-error" class="form-note" style="display:none">Your claim could not be submitted. Close this window, reopen the spot and try again.</div>
   </dialog>
   <div class="toast" role="status" aria-live="polite"></div>
   <script src="https://js.usebasin.com/v2.11.1.min.js" defer></script>
