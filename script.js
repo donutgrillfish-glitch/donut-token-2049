@@ -30,7 +30,7 @@ function updateBiddingState(){
   if(!isOpen&&modal.open)modal.close();
 }
 grid.innerHTML=spots.map(s=>`<article class="spot-card" tabindex="0" data-id="${s.id}"><span class="code">${s.id} / ${s.zone}</span><h3>${s.name}</h3><p>${s.copy}</p><footer><strong>${s.price}</strong><span class="available">Available</span></footer></article>`).join('');
-function openClaim(id){if(!biddingIsOpen()){showToast('Bidding closed September 29 at 5:00 PM UTC');return}const s=spots.find(x=>x.id===id);title.textContent=`${s.id} — ${s.price}`;modal.showModal();document.querySelectorAll('.marker').forEach(m=>m.classList.toggle('active',m.dataset.id===id));}
+function openClaim(id){if(!biddingIsOpen()){showToast('Bidding closed September 29 at 5:00 PM UTC');return}const s=spots.find(x=>x.id===id);title.textContent=`${s.id} — ${s.price}`;document.querySelector('#claim-spot-id').value=s.id;document.querySelector('#claim-spot-name').value=s.name;document.querySelector('#claim-spot-price').value=s.price;modal.showModal();document.querySelectorAll('.marker').forEach(m=>m.classList.toggle('active',m.dataset.id===id));}
 document.addEventListener('click',e=>{const hit=e.target.closest('[data-id]');if(hit)openClaim(hit.dataset.id);});
 document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.classList.contains('spot-card'))openClaim(e.target.dataset.id)});
 document.querySelector('.modal-close').onclick=()=>modal.close();
@@ -40,7 +40,7 @@ const networkSelect=document.querySelector('#payment-network');
 function setWallet(){const wallet=walletMap[networkSelect.value];document.querySelector('#wallet-label').textContent=`ONCHAIN CLAIM · ${wallet.label}`;document.querySelector('#wallet-address').textContent=wallet.address}
 networkSelect.addEventListener('change',setWallet);
 document.querySelector('#copy-wallet').onclick=async()=>{const wallet=walletMap[networkSelect.value];try{await navigator.clipboard.writeText(wallet.address);showToast(`${wallet.label} wallet copied`)}catch{showToast('Copy the wallet address manually')}};
-document.querySelector('#claim-form').onsubmit=e=>{e.preventDefault();if(!biddingIsOpen()){modal.close();showToast('Bidding is closed');return}modal.close();showToast('Claim received — connect your form endpoint to make this live');e.target.reset()};
+document.querySelector('#claim-form').addEventListener('submit',e=>{if(!biddingIsOpen()){e.preventDefault();modal.close();showToast('Bidding is closed')}});
 function showToast(message){toast.textContent=message;toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),3000)}
 document.querySelectorAll('details').forEach(d=>d.addEventListener('toggle',()=>{if(d.open)document.querySelectorAll('details').forEach(o=>{if(o!==d)o.open=false})}));
 document.querySelectorAll('.view-tab').forEach(tab=>tab.addEventListener('click',()=>{document.querySelectorAll('.view-tab').forEach(t=>t.classList.toggle('active',t===tab));document.querySelectorAll('.fit-view').forEach(v=>v.classList.toggle('active',v.dataset.panel===tab.dataset.view))}));
